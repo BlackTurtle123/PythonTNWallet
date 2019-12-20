@@ -29,8 +29,8 @@ else:
 app.secret_key = "TurtleNetwork"
 
 @app.context_processor
-def inject_network_and_currency():
-    return dict(network=NETWORK, currency=py.DEFAULT_CURRENCY)
+def inject_network_and_currency_and_base_fee():
+    return dict(network=NETWORK, currency=py.DEFAULT_CURRENCY, base_fee=FEE)
 
 def set_network_settings(network):
     config = configparser.ConfigParser()
@@ -38,7 +38,7 @@ def set_network_settings(network):
     global FEE
     global NODE
     network = network.upper()
-    FEE = config[network]['FEE']
+    FEE = int(config[network]['FEE'])
     NODE = config[network]['NODE']
     py.setNode(NODE, network + config[network]['CURRENCY'], config[network]['CHAR'])
     py.setMatcher(config[network]['MATCHER'])

@@ -48,13 +48,13 @@
             {% if asset_smart == True %}
                 
                 <div class="col-9"><h5>Fees: <input required id="send_fee" maxlength="35"
-                                minlength="35" value="{{ (2000000 + extra_fees+ 4000000)/100000000  }}">$TN</h5>
+                                minlength="35" value="{{ (base_fee + extra_fees+ 4000000)/100000000  }}">${{currency}}</h5>
             </div>
 
 
             {% else %}
                 <div class="col-9"><h5>Fees: <input required id="send_fee" maxlength="35"
-                                minlength="35" value="{{ (2000000 + extra_fees)/100000000 }}"> $TN</h5>
+                                minlength="35" value="{{ (base_fee + extra_fees)/100000000 }}"> ${{currency}}</h5>
             </div>
 
 
@@ -85,13 +85,13 @@
             {% if asset_smart == True %}
                 
                 <div class="col-9"><h5>Fees: <input required id="burn_fee" maxlength="35"
-                                minlength="35" value="{{ (2000000 + extra_fees+ 4000000)/100000000  }}"> $TN</h5>
+                                minlength="35" value="{{ (base_fee + extra_fees+ 4000000)/100000000  }}"> ${{currency}}</h5>
             </div>
 
 
             {% else %}
                 <div class="col-9"><h5>Fees: <input required id="burn_fee" maxlength="35"
-                            minlength="35" value="{{ (2000000 + extra_fees)/100000000 }}"> $TN</h5>
+                            minlength="35" value="{{ (base_fee + extra_fees)/100000000 }}"> ${{currency}}</h5>
             </div>
 
 

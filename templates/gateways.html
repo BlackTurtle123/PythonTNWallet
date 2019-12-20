@@ -33,17 +33,17 @@
               
 
         <button data-gwname="tn" class="gw_load_wd btn btn-outline-dark btn-lg" type="button">Withdraw
-            $TN
+            ${{currency}}
         </button>
       
         <button data-gwname="tn" class="gw_load_dep btn btn-outline-dark btn-lg" type="button">Deposit
-            $TN
+            ${{currency}}
         </button>
         <form id="tn_gateway_form">
             <div class="collapse" id="tn_collapse_dep_div">
 
-                <div class="col-9" style="text-align: left"><span><h5>To Send $TN to The Turtle Network, using Waves Network wallet:</h5>
-            <p>Send amount bigger then 0.09 $TN to: </p>
+                <div class="col-9" style="text-align: left"><span><h5>To Send ${{currency}} to The Turtle Network, using Waves Network wallet:</h5>
+            <p>Send amount bigger then 0.09 ${{currency}} to: </p>
             <h5>3PJ33ZasLyhLaFuK4gHGTFSQbpFBP5Entor</h5><p> With attachment: </p><h5>{{ address }}</h5></span>
                 </div>
 
@@ -54,7 +54,7 @@
                 <div class="row">
 
 
-                    <div class="col-md-4"><span><h5>To Send $TN to Waves Network, using Turtle Network wallet:</h5><br></br>$TN to send: <input
+                    <div class="col-md-4"><span><h5>To Send ${{currency}} to Waves Network, using Turtle Network wallet:</h5><br></br>${{currency}} to send: <input
                             required id="tn_amount" type="number" min="0.01" placeholder=Amount></span></div>
 
 
@@ -67,16 +67,16 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-md-4"><span><h5>Tx fees $TN:<input required id="tn_fee" maxlength="35"
+                    <div class="col-md-4"><span><h5>Tx fees ${{currency}}:<input required id="tn_fee" maxlength="35"
                                                                        minlength="35"
-                                                                       value="{{ (2000000 + extra_fees)/100000000 }}"></h5></span>
+                                                                       value="{{ (base_fee + extra_fees)/100000000 }}"></h5></span>
                     </div>
-                    <div class="col-md-4 offset-md-4"><span><h5>Gateway fees: 0.09 $TN</h5></span></div>
+                    <div class="col-md-4 offset-md-4"><span><h5>Gateway fees: 0.09 ${{currency}}</h5></span></div>
                 </div>
 
 
                 <div class="col-md-4">
-                    <button class="gw_send" data-gwname="tn" data-fee=0.09 type="button">Send $TN</button>
+                    <button class="gw_send" data-gwname="tn" data-fee=0.09 type="button">Send ${{currency}}</button>
                 </div>
             </div>
 
@@ -122,10 +122,10 @@
                         </h5></div>
                     </div>
                     <div class="row">
-                        <div class="col-md-4"><span><h5>Tx fees $TN:<input required id="{{ gw.name }}_fee"
+                        <div class="col-md-4"><span><h5>Tx fees ${{currency}}:<input required id="{{ gw.name }}_fee"
                                                                            maxlength="35"
                                                                            minlength="35"
-                                                                           value="{{ (2000000 + extra_fees)/100000000 }}"></h5></span>
+                                                                           value="{{ (base_fee + extra_fees)/100000000 }}"></h5></span>
                         </div>
                         <div class="col-md-4"><h5>Gateway fees: {{ gw.fee }} ${{ gw.name|upper }}</h5></div>
                     </div>
