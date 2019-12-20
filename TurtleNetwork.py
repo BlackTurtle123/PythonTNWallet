@@ -318,9 +318,6 @@ def do_admin_login():
     gateways.append(
         Gateway('----------', '3Jbrk85BjtVtEyrVLVVF7yWjKcnGPA6Rk5C',
                 0.00041, 'Ethereum', '6Mh41byVWPg8JVCfuwG5CAPCh9Q7gnuaAVxjDfVNDmcD', 'ethgw', 'wB-bg-ETH.png'))
-    gateways.append(
-        Gateway('----------', '33JgUZ2ytQicRQ1k38Y2nHeR9NxHK5fqEqbu',
-                1, 'Afin', 'A8jSBb33GztWpuCypUW9hJYPnTtJGZ7SDuSZfHCaeV49', 'afingw', 'wB-bg-AFIN.png'))
 
     return redirect(url_for('home'))
 
