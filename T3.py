@@ -41,7 +41,7 @@ def set_up():
 
     logger.debug('Server started')
     logger.debug('Binding on port ' + str(PORT))
-    logger.debug('Throw exceptions on pywaves errors: '+py.THROW_EXCEPTION_ON_ERROR )
+    logger.debug('Throw exceptions on pywaves errors: '+str(py.THROW_EXCEPTION_ON_ERROR ))
     create_webview()
     webview.start(debug=True, gui='qt')
 
