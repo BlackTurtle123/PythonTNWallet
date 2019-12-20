@@ -47,7 +47,7 @@ PyQtWebEngine==5.13.0
 python-axolotl-curve25519==0.4.1.post2
 pytoml==0.1.20
 pytz==2019.1
-PyWaves==0.8.23
+PyWaves==0.8.27
 pywebview==3.0.1
 requests==2.21.0
 requests-cache==0.4.13
