@@ -6,7 +6,7 @@ function get(url) {
         url: url,
 
     }).done(function (data) { //same as .success (depricated as of 1.8)
-        $("#Modal-body").html(JSON.stringify(data).replace("null", "Something went wrong.\n"));
+        $("#Modal-body").html(JSON.stringify(data));
         $("#Modal-vert-center-demo-label").text("User feedback");
         $("#Modal-vert-center-demo").modal('show');
     })
@@ -105,7 +105,7 @@ $(document).ready(function () {
             url: url,
 
         }).done(function (data) { //same as .success (depricated as of 1.8)
-            $("#Modal-body").html(JSON.stringify(data).replace("null", "Something went wrong.\n"));
+            $("#Modal-body").html(JSON.stringify(data));
             $("#Modal-vert-center-demo-label").text("User feedback");
             $("#Modal-vert-center-demo").modal('show');
         })

@@ -33,6 +33,7 @@ NODE = 'https://privatenode.blackturtle.eu'
 py.setNode(NODE, 'TN', 'L')
 py.setMatcher('https://privatematcher.blackturtle.eu')
 py.DEFAULT_CURRENCY = 'TN'
+py.THROW_EXCEPTION_ON_ERROR = True
 
 gateways = []
 login_manager = LoginManager()
@@ -134,9 +135,11 @@ def gw_send_tn():
     amount = float(json_data['amount']) * (10 ** 8)
     fee = float(json_data['fee']) * (10 ** 8)
     gateway = py.Address(address=get_addr_gateway('gateway', dest))
-    result = current_user.wallet.sendWaves(gateway, int(amount), txFee=int(fee))
-    return jsonify(result)
-
+    try:
+        result = current_user.wallet.sendWaves(gateway, int(amount), txFee=int(fee))
+        return jsonify(result)
+    except (py.PyWavesException,ValueError) as e:
+        return jsonify(str(e))
 
 @app.route('/gw/send/<gateway>', methods=['POST'], strict_slashes=False)
 @login_required
@@ -185,13 +188,16 @@ def send_tn():
     attachment = data['attachment']
     fee = float(data['fee']) * (10 ** 8)
     alias = json.loads(active_alias(recipient))
-    if 'address' not in alias:
-        send = current_user.wallet.sendWaves(py.Address(address=recipient), int(amount), attachment=attachment,
-                                             txFee=int(fee))
-    else:
-        send = current_user.wallet.sendWaves(py.Address(address=alias['address']), int(amount), attachment=attachment,
-                                             txFee=int(fee))
-    return jsonify(send)
+    try:
+        if 'address' not in alias:
+            send = current_user.wallet.sendWaves(py.Address(address=recipient), int(amount), attachment=attachment,
+                                                 txFee=int(fee))
+        else:
+            send = current_user.wallet.sendWaves(py.Address(address=alias['address']), int(amount), attachment=attachment,
+                                                 txFee=int(fee))
+        return jsonify(send)
+    except (py.PyWavesException,ValueError) as e:
+        return jsonify(str(e))
 
 
 @app.route('/assets/send/<asset>', methods=['POST'], strict_slashes=False)
@@ -203,12 +209,15 @@ def send_asset(asset):
     amount = float(data['amount']) * (10 ** py_asset.decimals)
     fee = float(data['fee']) * (10 ** 8)
     alias = json.loads(active_alias(addr))
-    if 'address' not in alias:
-        send = current_user.wallet.sendAsset(py.Address(addr), py_asset, int(amount), txFee=int(fee))
-    else:
-        send = current_user.wallet.sendAsset(py.Address(alias['address']), py_asset, int(amount), txFee=int(fee))
+    try:
+        if 'address' not in alias:
+            send = current_user.wallet.sendAsset(py.Address(addr), py_asset, int(amount), txFee=int(fee))
+        else:
+            send = current_user.wallet.sendAsset(py.Address(alias['address']), py_asset, int(amount), txFee=int(fee))
 
-    return jsonify(send)
+        return jsonify(send)
+    except (py.PyWavesException,ValueError) as e:
+        return jsonify(str(e))
 
 
 @app.route('/state/transactions/<addr>/<amount>')
