@@ -2,7 +2,7 @@ from threading import Thread, Lock
 import logging
 import webview
 from time import sleep
-from TurtleNetwork import run_server, PORT
+from TurtleNetwork import run_server, PORT, py
 
 server_lock = Lock()
 
@@ -41,6 +41,7 @@ def set_up():
 
     logger.debug('Server started')
     logger.debug('Binding on port ' + str(PORT))
+    logger.debug('Throw exceptions on pywaves errors: '+py.THROW_EXCEPTION_ON_ERROR )
     create_webview()
     webview.start(debug=True, gui='qt')
 
