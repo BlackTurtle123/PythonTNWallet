@@ -74,12 +74,14 @@
                     Portfolio
                 </a>
             </li>
+            {%  if network=='mainnet' and currency=='TN' %}
             <li>
                 <a href="/gateway/overview">
                     <em class="fas fa-expand-arrows-alt"></em>
                     Gateways
                 </a>
             </li>
+            {% endif %}
             <li>
                 <a href="/lease/overview">
                     <em class="fas fa-chart-pie"></em>

@@ -11,6 +11,8 @@
     <div class="container-fluid">
 
          <div class="col-md-4"><span><h1 style="text-align:center"><em class="fas fa-expand-arrows-alt"></em>GATEWAYS</h1></span></div>
+         <h3>DISCLAIMER: Gateways don't work with smart contracts. <br>
+             Always make sure to send to addresses without a SC!</h3>
 
     <select class="custom-select" style="width:50%" id="gateway_select_id" name="gateways">
         <option selected>Open this Gateway selection menu</option>
@@ -18,8 +20,6 @@
         {% for gw in gateways %}
             <option value="{{ gw.name }}">{{ gw.name }}</option>
         {% endfor %}
-        
-		0ea335b01cb73967d6986b2d57f47705b426410a
 
         </select>
         <br></br>

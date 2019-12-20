@@ -1,3 +1,4 @@
+import configparser
 import json
 import os
 import sys
@@ -27,13 +28,29 @@ else:
 
 app.secret_key = "TurtleNetwork"
 
-FEE = 2000000
+@app.context_processor
+def inject_network_and_currency():
+    return dict(network=NETWORK, currency=py.DEFAULT_CURRENCY)
 
+def set_network_settings(network):
+    config = configparser.ConfigParser()
+    config.read('network.cfg')
+    global FEE
+    global NODE
+    network = network.upper()
+    FEE = config[network]['FEE']
+    NODE = config[network]['NODE']
+    py.setNode(NODE, network + config[network]['CURRENCY'], config[network]['CHAR'])
+    py.setMatcher(config[network]['MATCHER'])
+    py.setDatafeed(config[network]['DATA_FEED'])
+    py.DEFAULT_CURRENCY = config[network]['CURRENCY']
+    py.THROW_EXCEPTION_ON_ERROR = config['GENERAL'].getboolean('THROW_ERRORS')
+
+
+NETWORK = 'mainnet'
+FEE = 2000000
 NODE = 'https://privatenode.blackturtle.eu'
-py.setNode(NODE, 'TN', 'L')
-py.setMatcher('https://privatematcher.blackturtle.eu')
-py.DEFAULT_CURRENCY = 'TN'
-py.THROW_EXCEPTION_ON_ERROR = True
+set_network_settings(NETWORK)
 
 gateways = []
 login_manager = LoginManager()
@@ -138,8 +155,9 @@ def gw_send_tn():
     try:
         result = current_user.wallet.sendWaves(gateway, int(amount), txFee=int(fee))
         return jsonify(result)
-    except (py.PyWavesException,ValueError) as e:
+    except (py.PyWavesException, ValueError) as e:
         return jsonify(str(e))
+
 
 @app.route('/gw/send/<gateway>', methods=['POST'], strict_slashes=False)
 @login_required
@@ -193,10 +211,11 @@ def send_tn():
             send = current_user.wallet.sendWaves(py.Address(address=recipient), int(amount), attachment=attachment,
                                                  txFee=int(fee))
         else:
-            send = current_user.wallet.sendWaves(py.Address(address=alias['address']), int(amount), attachment=attachment,
+            send = current_user.wallet.sendWaves(py.Address(address=alias['address']), int(amount),
+                                                 attachment=attachment,
                                                  txFee=int(fee))
         return jsonify(send)
-    except (py.PyWavesException,ValueError) as e:
+    except (py.PyWavesException, ValueError) as e:
         return jsonify(str(e))
 
 
@@ -216,7 +235,7 @@ def send_asset(asset):
             send = current_user.wallet.sendAsset(py.Address(alias['address']), py_asset, int(amount), txFee=int(fee))
 
         return jsonify(send)
-    except (py.PyWavesException,ValueError) as e:
+    except (py.PyWavesException, ValueError) as e:
         return jsonify(str(e))
 
 
@@ -296,10 +315,15 @@ def details_asset(assetid):
 
 @app.route('/login', methods=['POST'], strict_slashes=False)
 def do_admin_login():
+    global NETWORK
     data = request.form
     seed = data['seed']
     pk = data['pk']
+    NETWORK = data['network']
+    set_network_settings(NETWORK)
     login_user(User(pk, seed))
+    if NETWORK == 'testnet':
+        return redirect(url_for('home'))
     gateways.append(
         Gateway('----------', '3JbpUeiV6BN9k2cMccKE5LZrrQ8wN44pxWy',
                 0.01, 'Waves', 'EzwaF58ssALcUCZ9FbyeD1GTSteoZAQZEDTqBAXHfq8y', 'wavesgateway', 'wB-bg-WAV.png'),
