@@ -32,6 +32,8 @@ FEE = 2000000
 NODE = 'https://privatenode.blackturtle.eu'
 py.setNode(NODE, 'TN', 'L')
 py.setMatcher('https://privatematcher.blackturtle.eu')
+py.DEFAULT_CURRENCY = 'TN'
+
 gateways = []
 login_manager = LoginManager()
 login_manager.init_app(app)
