@@ -5,7 +5,4 @@ from app.network_settings import get_pywaves
 
 def address_data_regex(addr, regex):
     r = requests.get(get_pywaves().NODE + "/addresses/data/" + addr + "?matches=" + regex)
-    print(get_pywaves().NODE)
-    print(addr)
-    print(regex)
     return r.content.decode()
