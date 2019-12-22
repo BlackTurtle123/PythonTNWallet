@@ -1,11 +1,44 @@
 {% extends 'base.html' %}
 {% block head %}
     <script type="text/javascript" src="{{ url_for('static', filename = 'js/transactions.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'js/data.js') }}"></script>
 
 {% endblock %}
 {% block content %}
-<h3>Data linked to account</h3>
+    <h3>Data linked to account</h3>
     <button data-addr={{ address }} id="data_load">Show Data</button>
 
     <div class="collapse" id="data_collapse_div"></div>
+
+    <div class="container-fluid">
+
+        <form id="data_create_form">
+
+            <div class="col-md-4"><h2><em class="fas fa-burn"></em>DATA TRANSFER</h2></div>
+            <div class="col-9"><h5>Fees: <input required id="data_fee" maxlength="35"
+                                                minlength="35" value="{{ (base_fee + extra_fees)/100000000 }}">
+                ${{ currency }}</h5>
+            </div>
+            <div class="col-9"><h5>Key <input required
+                                              id="data_key"
+                                              placeholder="Unique key">
+            </h5>
+            </div>
+            <div class="col-9"><h5>Type <input required
+                                               id="data_type"
+            >
+            </h5>
+            </div>
+            <div class="col-9"><h5>Value <input required
+                                                id="data_value"
+                                                placeholder="To Send">
+            </h5>
+            </div>
+            <div class="col-md-4">
+
+                <button id="send_data_transfer" class="btn btn-outline-dark btn-lg" type="button"
+                        ><h5>Create data transfer--not working yet</h5></button>
+            </div>
+        </form>
+    </div>
 {% endblock %}

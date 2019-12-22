@@ -2,7 +2,7 @@ import requests
 from flask import Blueprint
 
 from app.network_settings import get_pywaves
-from app.utils.address_data_regex import address_data_regex
+from app.utils import address_data_regex
 
 data = Blueprint('data', __name__)
 

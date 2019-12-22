@@ -44,7 +44,6 @@ $(document).ready(function () {
                 tablecontents += "</tr>";
             });
             tablecontents += '</table>';
-
             $(divname).html(tablecontents);
 
         })

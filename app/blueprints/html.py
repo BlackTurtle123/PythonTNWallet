@@ -51,7 +51,7 @@ def alias_overview():
 @html.route('/data')
 @login_required
 def data_overview():
-    return render_template('data_transfer.html', address=current_user.wallet.address)
+    return render_template('data_transfer.html', address=current_user.wallet.address, extra_fees=current_user.extra_fees)
 
 
 @html.route('/asset/create')

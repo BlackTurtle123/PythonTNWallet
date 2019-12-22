@@ -2,7 +2,7 @@ from flask import Blueprint
 import json
 from app import network_settings as nset
 from app.models.Verification import Verification
-from app.utils.address_data_regex import address_data_regex
+from app.utils import address_data_regex
 
 tickers = Blueprint('tickers', __name__)
 
