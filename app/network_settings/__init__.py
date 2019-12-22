@@ -5,6 +5,7 @@ import pywaves as py
 py.DEFAULT_TX_FEE = 2000000
 TICKER_ORACLE = '3Ji18p2UzvemqKe6Npn3qZUAve1Vs4rkZDP'
 NETWORK = 'mainnet'
+gateways = []
 
 
 def set_network_settings(network):
@@ -42,3 +43,12 @@ def get_ticker_oracle():
 
 def get_pywaves():
     return py
+
+
+def get_gateways():
+    return gateways
+
+
+def set_gateways(gateways_list):
+    global gateways
+    gateways = gateways_list

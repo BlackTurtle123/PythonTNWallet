@@ -22,5 +22,5 @@ class User(UserMixin):
 
     @staticmethod
     def state_fees(addr: str):
-        r = requests.get(py.NODE + "/addresses/scriptInfo/" + addr)
+        r = requests.get(get_pywaves().NODE + "/addresses/scriptInfo/" + addr)
         return r.json()
