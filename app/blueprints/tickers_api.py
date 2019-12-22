@@ -40,10 +40,11 @@ def data_tickers_email_by_asset_id(assetid):
 @tickers.route("/tickers/<assetid>/full")
 def data_full_ticker_info_asset(assetid):
     try:
-        ticker = json.loads(data_tickers_by_asset_id(assetid))[0]['value']
-        status = json.loads(data_tickers_status_by_asset_id(assetid))[0]['value']
-        email = json.loads(data_tickers_email_by_asset_id(assetid))[0]['value']
+        ticker = json.loads(data_tickers_by_asset_id(assetid))
+        status = json.loads(data_tickers_status_by_asset_id(assetid))
+        email = json.loads(data_tickers_email_by_asset_id(assetid))
         verifcation = Verification(assetid, ticker, status, email)
     except IndexError:
+        print("Ticker not set for: " +assetid)
         verifcation = Verification(assetid)
     return json.dumps(verifcation.__dict__)
