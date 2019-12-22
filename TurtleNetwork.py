@@ -40,6 +40,8 @@ def set_network_settings(network):
     network = network.upper()
     FEE = int(config[network]['FEE'])
     NODE = config[network]['NODE']
+    global TICKER_ORACLE
+    TICKER_ORACLE = config[network]['TICKER_ORACLE']
     py.setNode(NODE, network + config[network]['CURRENCY'], config[network]['CHAR'])
     py.setMatcher(config[network]['MATCHER'])
     py.setDatafeed(config[network]['DATA_FEED'])
@@ -49,6 +51,7 @@ def set_network_settings(network):
 
 NETWORK = 'mainnet'
 FEE = 2000000
+TICKER_ORACLE = '3Ji18p2UzvemqKe6Npn3qZUAve1Vs4rkZDP'
 NODE = 'https://privatenode.blackturtle.eu'
 set_network_settings(NETWORK)
 
@@ -322,7 +325,7 @@ def do_admin_login():
     NETWORK = data['network']
     set_network_settings(NETWORK)
     login_user(User(pk, seed))
-    if NETWORK == 'testnet':
+    if NETWORK != 'mainnet':
         return redirect(url_for('home'))
     gateways.append(
         Gateway('----------', '3JbpUeiV6BN9k2cMccKE5LZrrQ8wN44pxWy',
