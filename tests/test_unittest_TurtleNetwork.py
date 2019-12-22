@@ -13,7 +13,7 @@ class BasicTests(unittest.TestCase):
     def login(self, seed, pk):
         return self.app.post(
             '/login',
-            data=dict(seed=seed, pk=pk),
+            data=dict(seed=seed, pk=pk, network='mainnet'),
             follow_redirects=True
         )
 

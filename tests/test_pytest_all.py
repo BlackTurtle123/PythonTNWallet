@@ -24,7 +24,8 @@ def test_client():
 def login(client, seed, pk):
     return client.post('/login', data=dict(
         seed=seed,
-        pk=pk
+        pk=pk,
+        network='mainnet'
     ), follow_redirects=True)
 
 
