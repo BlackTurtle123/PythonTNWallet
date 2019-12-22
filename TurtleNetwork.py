@@ -1,23 +1,19 @@
-import configparser
 import json
-import os
 import sys
 
-import pywaves as py
 import requests
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+from flask import Flask, render_template, request, url_for, redirect, jsonify, g
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 
+from app import network_settings as nset
+from app.blueprints.tickers import tickers
 from app.models.Gateway import Gateway
 from app.models.Token import Token
 from app.models.User import User
-
-
-def resource_path(relative_path):
-    """ Get absolute path to resource, works for dev and for PyInstaller """
-    base_path = getattr(sys, '_MEIPASS', os.path.dirname(os.path.abspath(__file__)))
-    return os.path.join(base_path, relative_path)
-
+from app.network_settings import get_pywaves
+from app.utils.address_data_regex import address_data_regex
+from app.utils.free_port import get_free_port
+from app.utils.resource_path import resource_path
 
 if getattr(sys, 'frozen', False):
     template_folder = resource_path('templates')
@@ -26,34 +22,16 @@ if getattr(sys, 'frozen', False):
 else:
     app = Flask(__name__)
 
+app.register_blueprint(tickers)
 app.secret_key = "TurtleNetwork"
+
 
 @app.context_processor
 def inject_network_and_currency_and_base_fee():
-    return dict(network=NETWORK, currency=py.DEFAULT_CURRENCY, base_fee=FEE)
-
-def set_network_settings(network):
-    config = configparser.ConfigParser()
-    config.read('network.cfg')
-    global FEE
-    global NODE
-    network = network.upper()
-    FEE = int(config[network]['FEE'])
-    NODE = config[network]['NODE']
-    global TICKER_ORACLE
-    TICKER_ORACLE = config[network]['TICKER_ORACLE']
-    py.setNode(NODE, network + config[network]['CURRENCY'], config[network]['CHAR'])
-    py.setMatcher(config[network]['MATCHER'])
-    py.setDatafeed(config[network]['DATA_FEED'])
-    py.DEFAULT_CURRENCY = config[network]['CURRENCY']
-    py.THROW_EXCEPTION_ON_ERROR = config['GENERAL'].getboolean('THROW_ERRORS')
+    return dict(network=nset.get_network(), currency=get_pywaves().DEFAULT_CURRENCY, base_fee=get_pywaves().DEFAULT_TX_FEE)
 
 
-NETWORK = 'mainnet'
-FEE = 2000000
-TICKER_ORACLE = '3Ji18p2UzvemqKe6Npn3qZUAve1Vs4rkZDP'
-NODE = 'https://privatenode.blackturtle.eu'
-set_network_settings(NETWORK)
+nset.set_network("mainnet")
 
 gateways = []
 login_manager = LoginManager()
@@ -74,7 +52,7 @@ def load_user(seed):
 @app.route('/portfolio')
 @login_required
 def portfolio():
-    result = requests.get(NODE + '/assets/balance/' + current_user.wallet.address)
+    result = requests.get(get_pywaves().NODE + '/assets/balance/' + current_user.wallet.address)
     balances = json.loads(result.content)['balances']
     portfolio = []
     for balance in balances:
@@ -154,11 +132,11 @@ def gw_send_tn():
     dest = json_data['addr']
     amount = float(json_data['amount']) * (10 ** 8)
     fee = float(json_data['fee']) * (10 ** 8)
-    gateway = py.Address(address=get_addr_gateway('gateway', dest))
+    gateway = get_pywaves().Address(address=get_addr_gateway('gateway', dest))
     try:
         result = current_user.wallet.sendWaves(gateway, int(amount), txFee=int(fee))
         return jsonify(result)
-    except (py.PyWavesException, ValueError) as e:
+    except (get_pywaves().PyWavesException, ValueError) as e:
         return jsonify(str(e))
 
 
@@ -167,12 +145,12 @@ def gw_send_tn():
 def gw_send_currencie(gateway):
     gw: Gateway = next((x for x in gateways if x.name.lower() == gateway.lower()), None)
     data = request.data
-    gateway = py.Address(address=gw.general_addr)
+    gateway = get_pywaves().Address(address=gw.general_addr)
     json_data = json.loads(data.decode())
     dest = json_data['addr']
     amount = float(json_data['amount']) * (10 ** 8)
     fee = float(json_data['fee']) * (10 ** 8)
-    result = current_user.wallet.sendAsset(gateway, py.Asset(gw.asset_id), int(amount), txFee=int(fee), attachment=dest)
+    result = current_user.wallet.sendAsset(gateway, get_pywaves().Asset(gw.asset_id), int(amount), txFee=int(fee), attachment=dest)
     return jsonify(result)
 
 
@@ -192,7 +170,7 @@ def login():
 @app.route('/assets/burn/<asset>', methods=['POST'], strict_slashes=False)
 @login_required
 def burn_asset(asset):
-    py_asset = py.Asset(assetId=asset)
+    py_asset = get_pywaves().Asset(assetId=asset)
     data = json.loads(request.data.decode())
     amount = float(data['amount']) * (10 ** py_asset.decimals)
     fee = float(data['fee']) * (10 ** 8)
@@ -211,21 +189,21 @@ def send_tn():
     alias = json.loads(active_alias(recipient))
     try:
         if 'address' not in alias:
-            send = current_user.wallet.sendWaves(py.Address(address=recipient), int(amount), attachment=attachment,
+            send = current_user.wallet.sendWaves(get_pywaves().Address(address=recipient), int(amount), attachment=attachment,
                                                  txFee=int(fee))
         else:
-            send = current_user.wallet.sendWaves(py.Address(address=alias['address']), int(amount),
+            send = current_user.wallet.sendWaves(get_pywaves().Address(address=alias['address']), int(amount),
                                                  attachment=attachment,
                                                  txFee=int(fee))
         return jsonify(send)
-    except (py.PyWavesException, ValueError) as e:
+    except (get_pywaves().PyWavesException, ValueError) as e:
         return jsonify(str(e))
 
 
 @app.route('/assets/send/<asset>', methods=['POST'], strict_slashes=False)
 @login_required
 def send_asset(asset):
-    py_asset = py.Asset(assetId=asset)
+    py_asset = get_pywaves().Asset(assetId=asset)
     data = json.loads(request.data.decode())
     addr = data['addr']
     amount = float(data['amount']) * (10 ** py_asset.decimals)
@@ -233,25 +211,30 @@ def send_asset(asset):
     alias = json.loads(active_alias(addr))
     try:
         if 'address' not in alias:
-            send = current_user.wallet.sendAsset(py.Address(addr), py_asset, int(amount), txFee=int(fee))
+            send = current_user.wallet.sendAsset(get_pywaves().Address(addr), py_asset, int(amount), txFee=int(fee))
         else:
-            send = current_user.wallet.sendAsset(py.Address(alias['address']), py_asset, int(amount), txFee=int(fee))
+            send = current_user.wallet.sendAsset(get_pywaves().Address(alias['address']), py_asset, int(amount), txFee=int(fee))
 
         return jsonify(send)
-    except (py.PyWavesException, ValueError) as e:
+    except (get_pywaves().PyWavesException, ValueError) as e:
         return jsonify(str(e))
 
 
 @app.route('/state/transactions/<addr>/<amount>')
 def history_tx(addr, amount):
-    r = requests.get(NODE + "/transactions/address/" + addr + "/limit/" + amount)
+    r = requests.get(get_pywaves().NODE + "/transactions/address/" + addr + "/limit/" + amount)
     return r.content.decode()
 
 
 @app.route('/address/data/<addr>')
 def address_data(addr):
-    r = requests.get(NODE + "/addresses/data/" + addr)
+    r = requests.get(get_pywaves().NODE + "/addresses/data/" + addr)
     return r.content.decode()
+
+
+@app.route('/address/data/<addr>/regex/<regex>')
+def addr_data_regex(addr, regex):
+    return address_data_regex(addr, regex)
 
 
 @app.route('/create/alias', methods=['POST'], strict_slashes=False)
@@ -266,26 +249,26 @@ def create_alias():
 
 @app.route('/state/aliases/by-address/<addr>')
 def active_alias_by_addr(addr):
-    r = requests.get(NODE + "/alias/by-address/" + addr)
+    r = requests.get(get_pywaves().NODE + "/alias/by-address/" + addr)
     return r.content.decode()
 
 
 @app.route('/state/aliases/by-alias/<alias>')
 def active_alias(alias):
-    r = requests.get(NODE + "/alias/by-alias/" + alias)
+    r = requests.get(get_pywaves().NODE + "/alias/by-alias/" + alias)
     return r.content.decode()
 
 
 @app.route('/state/leases/<addr>')
 def active_leasing(addr):
-    r = requests.get(NODE + "/leasing/active/" + addr)
+    r = requests.get(get_pywaves().NODE + "/leasing/active/" + addr)
     return r.content.decode()
 
 
 @app.route('/state/leases/cancel/<id>')
 @login_required
 def cancel_active_leasing(id):
-    send = current_user.wallet.leaseCancel(leaseId=id, txFee=FEE)
+    send = current_user.wallet.leaseCancel(leaseId=id, txFee=get_pywaves().DEFAULT_TX_FEE)
     return jsonify(send)
 
 
@@ -297,16 +280,16 @@ def start_leasing():
     recipient = data['addr']
     alias = json.loads(active_alias(recipient))
     if 'address' not in alias:
-        send = current_user.wallet.lease(py.Address(address=recipient), int(amount), txFee=FEE)
+        send = current_user.wallet.lease(get_pywaves().Address(address=recipient), int(amount), txFee=get_pywaves().DEFAULT_TX_FEE)
     else:
-        send = current_user.wallet.lease(py.Address(address=alias['address']), int(amount), txFee=FEE)
+        send = current_user.wallet.lease(get_pywaves().Address(address=alias['address']), int(amount), txFee=get_pywaves().DEFAULT_TX_FEE)
     return jsonify(send)
 
 
 @app.route('/details/<assetid>', strict_slashes=False)
 @login_required
 def details_asset(assetid):
-    asset_details = py.Asset(assetId=assetid)
+    asset_details = get_pywaves().Asset(assetId=assetid)
     if asset_details.decimals == 0:
         asset_balance = current_user.wallet.balance(assetId=assetid)
     else:
@@ -318,14 +301,12 @@ def details_asset(assetid):
 
 @app.route('/login', methods=['POST'], strict_slashes=False)
 def do_admin_login():
-    global NETWORK
     data = request.form
     seed = data['seed']
     pk = data['pk']
-    NETWORK = data['network']
-    set_network_settings(NETWORK)
+    nset.set_network(data['network'])
     login_user(User(pk, seed))
-    if NETWORK != 'mainnet':
+    if nset.get_network() != 'mainnet':
         return redirect(url_for('home'))
     gateways.append(
         Gateway('----------', '3JbpUeiV6BN9k2cMccKE5LZrrQ8wN44pxWy',
@@ -360,17 +341,8 @@ def do_admin_login():
     return redirect(url_for('home'))
 
 
-def get_free_port():
-    import socket
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.bind(("", 0))
-    free_port = s.getsockname()[1]
-    s.close()
-    return free_port
-
-
 PORT = get_free_port()
-
+PYWAVES = get_pywaves()
 
 def run_server():
     app.run(host='127.0.0.1', port=PORT, threaded=True)
