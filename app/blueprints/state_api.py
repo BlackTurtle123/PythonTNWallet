@@ -18,7 +18,7 @@ def active_alias_by_addr(addr):
 
 @state.route('/state/aliases/by-alias/<alias>')
 def active_alias_by_alias(alias):
-    return active_alias
+    return active_alias(alias)
 
 
 @state.route('/state/leases/<addr>')
