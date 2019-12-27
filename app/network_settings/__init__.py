@@ -2,6 +2,8 @@ import configparser
 
 import pywaves as py
 
+from app.network_settings.correct_path import get_correct_path
+
 py.DEFAULT_TX_FEE = 2000000
 TICKER_ORACLE = '3Ji18p2UzvemqKe6Npn3qZUAve1Vs4rkZDP'
 NETWORK = 'mainnet'
@@ -10,7 +12,7 @@ gateways = []
 
 def set_network_settings(network):
     config = configparser.ConfigParser()
-    config.read('network.cfg')
+    config.read(get_correct_path('./static/network.cfg'))
     network = network.upper()
     NODE = config[network]['NODE']
     set_ticker_oracle(config[network]['TICKER_ORACLE'])
